@@ -5,6 +5,7 @@ import EmployeeList from '@/components/EmployeeList';
 import UpdateReminder from '@/components/UpdateReminder';
 import AddEmployeeForm from '@/components/AddEmployeeForm';
 import AddOrganizationForm from '@/components/AddOrganizationForm';
+import AdminPanel from '@/components/AdminPanel';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
@@ -17,6 +18,7 @@ const DirectoryPage = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [showAddEmployee, setShowAddEmployee] = useState(false);
   const [showAddOrganization, setShowAddOrganization] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const { user, logout, hasRole, canEditDepartment } = useAuth();
@@ -56,6 +58,16 @@ const DirectoryPage = () => {
       id: Date.now().toString(),
     };
     setOrganizations(prev => [...prev, organization]);
+  };
+
+  const handleUpdateOrganization = (id: string, updates: Partial<Organization>) => {
+    setOrganizations(prev => 
+      prev.map(org => org.id === id ? { ...org, ...updates } : org)
+    );
+  };
+
+  const handleDeleteOrganization = (id: string) => {
+    setOrganizations(prev => prev.filter(org => org.id !== id));
   };
 
   const canEditEmployee = (employee: Employee) => {
@@ -170,10 +182,16 @@ const DirectoryPage = () => {
                       Сотрудника
                     </DropdownMenuItem>
                     {hasRole('admin') && (
-                      <DropdownMenuItem onClick={() => setShowAddOrganization(true)}>
-                        <Icon name="Building2" size={16} className="mr-2" />
-                        Организацию
-                      </DropdownMenuItem>
+                      <>
+                        <DropdownMenuItem onClick={() => setShowAddOrganization(true)}>
+                          <Icon name="Building2" size={16} className="mr-2" />
+                          Организацию
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setShowAdminPanel(true)}>
+                          <Icon name="Settings" size={16} className="mr-2" />
+                          Управление
+                        </DropdownMenuItem>
+                      </>
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -230,6 +248,14 @@ const DirectoryPage = () => {
           isOpen={showAddOrganization}
           onClose={() => setShowAddOrganization(false)}
           onSave={handleAddOrganization}
+        />
+
+        <AdminPanel
+          isOpen={showAdminPanel}
+          onClose={() => setShowAdminPanel(false)}
+          organizations={organizations}
+          onUpdateOrganization={handleUpdateOrganization}
+          onDeleteOrganization={handleDeleteOrganization}
         />
       </main>
     </div>
