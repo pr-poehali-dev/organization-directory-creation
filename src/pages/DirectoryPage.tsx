@@ -1,9 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Employee } from '@/types/directory';
+import { Employee, Organization } from '@/types/directory';
 import SearchBar from '@/components/SearchBar';
 import EmployeeList from '@/components/EmployeeList';
 import UpdateReminder from '@/components/UpdateReminder';
+import AddEmployeeForm from '@/components/AddEmployeeForm';
+import AddOrganizationForm from '@/components/AddOrganizationForm';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { mockEmployees } from '@/data/mockData';
 import Icon from '@/components/ui/icon';
@@ -12,20 +15,24 @@ const DirectoryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showReminder, setShowReminder] = useState(true);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [showAddEmployee, setShowAddEmployee] = useState(false);
+  const [showAddOrganization, setShowAddOrganization] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const { user, logout, hasRole, canEditDepartment } = useAuth();
 
   const filteredEmployees = useMemo(() => {
-    if (!searchTerm.trim()) return mockEmployees;
+    if (!searchTerm.trim()) return employees;
     
     const term = searchTerm.toLowerCase();
-    return mockEmployees.filter(employee =>
+    return employees.filter(employee =>
       employee.lastName.toLowerCase().includes(term) ||
       employee.firstName.toLowerCase().includes(term) ||
       employee.middleName.toLowerCase().includes(term) ||
       employee.workPhone.includes(term) ||
       employee.mobilePhone.includes(term)
     );
-  }, [searchTerm]);
+  }, [searchTerm, employees]);
 
   const handleEmployeeClick = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -33,6 +40,22 @@ const DirectoryPage = () => {
 
   const handleUpdateConfirm = () => {
     setShowReminder(false);
+  };
+
+  const handleAddEmployee = (newEmployee: Omit<Employee, 'id'>) => {
+    const employee: Employee = {
+      ...newEmployee,
+      id: Date.now().toString(),
+    };
+    setEmployees(prev => [...prev, employee]);
+  };
+
+  const handleAddOrganization = (newOrganization: Omit<Organization, 'id'>) => {
+    const organization: Organization = {
+      ...newOrganization,
+      id: Date.now().toString(),
+    };
+    setOrganizations(prev => [...prev, organization]);
   };
 
   const canEditEmployee = (employee: Employee) => {
@@ -133,6 +156,28 @@ const DirectoryPage = () => {
               <h1 className="text-2xl font-bold">Телефонный справочник</h1>
             </div>
             <div className="flex items-center gap-4">
+              {(hasRole('admin') || hasRole('department_head')) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button>
+                      <Icon name="Plus" size={16} className="mr-2" />
+                      Добавить
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setShowAddEmployee(true)}>
+                      <Icon name="UserPlus" size={16} className="mr-2" />
+                      Сотрудника
+                    </DropdownMenuItem>
+                    {hasRole('admin') && (
+                      <DropdownMenuItem onClick={() => setShowAddOrganization(true)}>
+                        <Icon name="Building2" size={16} className="mr-2" />
+                        Организацию
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               <span className="text-sm text-gray-600">
                 {user?.role === 'admin' && 'Администратор'}
                 {user?.role === 'department_head' && 'Руководитель'}
@@ -173,6 +218,18 @@ const DirectoryPage = () => {
           onEmployeeClick={handleEmployeeClick}
           onEditEmployee={canEditEmployee ? handleEmployeeClick : undefined}
           showEditButton={hasRole('admin') || hasRole('department_head')}
+        />
+
+        <AddEmployeeForm
+          isOpen={showAddEmployee}
+          onClose={() => setShowAddEmployee(false)}
+          onSave={handleAddEmployee}
+        />
+
+        <AddOrganizationForm
+          isOpen={showAddOrganization}
+          onClose={() => setShowAddOrganization(false)}
+          onSave={handleAddOrganization}
         />
       </main>
     </div>

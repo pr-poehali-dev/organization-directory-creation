@@ -31,6 +31,13 @@ export interface User {
   departmentAccess?: string[];
 }
 
+export interface Organization {
+  id: string;
+  name: string;
+  departments: string[];
+  createdAt: Date;
+}
+
 export interface DirectorySettings {
   organizationName: string;
   departments: string[];
