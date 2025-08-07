@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Employee } from '@/types/directory';
+import { mockSettings } from '@/data/mockData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -168,12 +169,21 @@ const EditEmployeeForm = ({ employee, isOpen, onClose, onSave }: EditEmployeeFor
 
           <div className="space-y-2">
             <Label htmlFor="department">Структурное подразделение *</Label>
-            <Input
-              id="department"
-              value={formData.department}
-              onChange={(e) => handleInputChange('department', e.target.value)}
-              className={errors.department ? 'border-red-500' : ''}
-            />
+            <Select 
+              value={formData.department} 
+              onValueChange={(value) => handleInputChange('department', value)}
+            >
+              <SelectTrigger className={errors.department ? 'border-red-500' : ''}>
+                <SelectValue placeholder="Выберите подразделение" />
+              </SelectTrigger>
+              <SelectContent>
+                {mockSettings.departments.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.department && (
               <p className="text-sm text-red-600">{errors.department}</p>
             )}
@@ -186,10 +196,11 @@ const EditEmployeeForm = ({ employee, isOpen, onClose, onSave }: EditEmployeeFor
                 <SelectValue placeholder="Выберите министерство" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Министерство цифрового развития">Министерство цифрового развития</SelectItem>
-                <SelectItem value="Министерство экономики">Министерство экономики</SelectItem>
-                <SelectItem value="Министерство образования">Министерство образования</SelectItem>
-                <SelectItem value="Министерство здравоохранения">Министерство здравоохранения</SelectItem>
+                {mockSettings.ministries.map((ministry) => (
+                  <SelectItem key={ministry} value={ministry}>
+                    {ministry}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
