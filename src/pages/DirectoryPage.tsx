@@ -6,6 +6,7 @@ import UpdateReminder from '@/components/UpdateReminder';
 import AddEmployeeForm from '@/components/AddEmployeeForm';
 import AddOrganizationForm from '@/components/AddOrganizationForm';
 import AdminPanel from '@/components/AdminPanel';
+import EditEmployeeForm from '@/components/EditEmployeeForm';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
@@ -19,6 +20,8 @@ const DirectoryPage = () => {
   const [showAddEmployee, setShowAddEmployee] = useState(false);
   const [showAddOrganization, setShowAddOrganization] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showEditEmployee, setShowEditEmployee] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const { user, logout, hasRole, canEditDepartment } = useAuth();
@@ -68,6 +71,17 @@ const DirectoryPage = () => {
 
   const handleDeleteOrganization = (id: string) => {
     setOrganizations(prev => prev.filter(org => org.id !== id));
+  };
+
+  const handleEditEmployee = (employee: Employee) => {
+    setEditingEmployee(employee);
+    setShowEditEmployee(true);
+  };
+
+  const handleUpdateEmployee = (id: string, updates: Partial<Employee>) => {
+    setEmployees(prev => 
+      prev.map(emp => emp.id === id ? { ...emp, ...updates } : emp)
+    );
   };
 
   const canEditEmployee = (employee: Employee) => {
@@ -146,7 +160,7 @@ const DirectoryPage = () => {
             
             {canEditEmployee(selectedEmployee) && (
               <div className="mt-6 pt-6 border-t">
-                <Button>
+                <Button onClick={() => handleEditEmployee(selectedEmployee)}>
                   <Icon name="Edit" size={16} className="mr-2" />
                   Редактировать
                 </Button>
@@ -234,7 +248,7 @@ const DirectoryPage = () => {
         <EmployeeList
           employees={filteredEmployees}
           onEmployeeClick={handleEmployeeClick}
-          onEditEmployee={canEditEmployee ? handleEmployeeClick : undefined}
+          onEditEmployee={handleEditEmployee}
           showEditButton={hasRole('admin') || hasRole('department_head')}
         />
 
@@ -257,6 +271,18 @@ const DirectoryPage = () => {
           onUpdateOrganization={handleUpdateOrganization}
           onDeleteOrganization={handleDeleteOrganization}
         />
+
+        {editingEmployee && (
+          <EditEmployeeForm
+            employee={editingEmployee}
+            isOpen={showEditEmployee}
+            onClose={() => {
+              setShowEditEmployee(false);
+              setEditingEmployee(null);
+            }}
+            onSave={handleUpdateEmployee}
+          />
+        )}
       </main>
     </div>
   );
