@@ -33,9 +33,8 @@ async function main() {
 
   const org1 = await prisma.organization.create({
     data: {
-      name: 'Министерство цифрового развития',
-      type: 'Министерство',
-      ministry: 'Цифровое развитие',
+      name: 'Департамент цифрового развития',
+      type: 'Государственное учреждение',
       description: 'Ответственно за цифровую трансформацию'
     }
   });
@@ -43,8 +42,7 @@ async function main() {
   const org2 = await prisma.organization.create({
     data: {
       name: 'Администрация города',
-      type: 'Администрация',
-      ministry: 'Местное самоуправление',
+      type: 'Муниципальное учреждение',
       description: 'Органы местного самоуправления'
     }
   });
@@ -127,12 +125,12 @@ async function main() {
 
   await prisma.systemSettings.create({
     data: {
-      ministries: [
-        'Цифровое развитие',
-        'Образование и наука',
-        'Здравоохранение',
-        'Транспорт',
-        'Экономическое развитие'
+      organizationTypes: [
+        'Государственное учреждение',
+        'Муниципальное учреждение',
+        'Бюджетное учреждение',
+        'Автономное учреждение',
+        'Унитарное предприятие'
       ],
       notificationDays: [1, 15],
       enableNotifications: true

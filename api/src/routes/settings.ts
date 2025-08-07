@@ -7,7 +7,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 const settingsSchema = Joi.object({
-  ministries: Joi.array().items(Joi.string()).default([]),
+  organizationTypes: Joi.array().items(Joi.string()).default([]),
   notificationDays: Joi.array().items(Joi.number().min(1).max(31)).default([]),
   enableNotifications: Joi.boolean().default(true),
 });
@@ -19,7 +19,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res, next) => {
     if (!settings) {
       settings = await prisma.systemSettings.create({
         data: {
-          ministries: [],
+          organizationTypes: [],
           notificationDays: [],
           enableNotifications: true
         }

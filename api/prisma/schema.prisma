@@ -25,8 +25,7 @@ model User {
 model Organization {
   id          String       @id @default(cuid())
   name        String
-  type        String?
-  ministry    String?
+  type        String?      // Тип организации: Государственное учреждение, Муниципальное учреждение и т.д.
   description String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -68,7 +67,7 @@ model Employee {
 
 model SystemSettings {
   id                    String   @id @default(cuid())
-  ministries            String[] @default([])
+  organizationTypes     String[] @default([])  // Типы организаций
   notificationDays      Int[]    @default([])
   enableNotifications   Boolean  @default(true)
   updatedAt             DateTime @updatedAt

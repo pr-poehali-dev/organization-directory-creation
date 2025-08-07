@@ -9,7 +9,6 @@ const prisma = new PrismaClient();
 const organizationSchema = Joi.object({
   name: Joi.string().required(),
   type: Joi.string().optional(),
-  ministry: Joi.string().optional(),
   description: Joi.string().optional(),
 });
 
